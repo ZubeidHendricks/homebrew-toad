@@ -12,11 +12,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Register checkout as the tap
+        run: |
+          tap_dir="$(brew --repository)/Library/Taps/zubeidhendricks/homebrew-toad"
+          mkdir -p "$(dirname "$tap_dir")"
+          ln -s "$GITHUB_WORKSPACE" "$tap_dir"
+
       - name: Style
-        run: brew style Formula/toac.rb
+        run: brew style zubeidhendricks/toad
 
       - name: Install
-        run: brew install --build-from-source --formula ./Formula/toac.rb
+        run: brew install --build-from-source zubeidhendricks/toad/toac
 
       - name: Test
-        run: brew test --formula ./Formula/toac.rb
+        run: brew test zubeidhendricks/toad/toac

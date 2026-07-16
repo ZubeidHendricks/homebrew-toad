@@ -42,8 +42,11 @@ jobs:
       - name: Verify
         if: steps.check.outputs.latest != steps.check.outputs.current
         run: |
-          brew install --build-from-source --formula ./Formula/toac.rb
-          brew test --formula ./Formula/toac.rb
+          tap_dir="$(brew --repository)/Library/Taps/zubeidhendricks/homebrew-toad"
+          mkdir -p "$(dirname "$tap_dir")"
+          ln -s "$GITHUB_WORKSPACE" "$tap_dir"
+          brew install --build-from-source zubeidhendricks/toad/toac
+          brew test zubeidhendricks/toad/toac
 
       - name: Commit and push
         if: steps.check.outputs.latest != steps.check.outputs.current
