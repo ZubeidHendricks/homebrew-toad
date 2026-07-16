@@ -1,0 +1,22 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Style
+        run: brew style Formula/toac.rb
+
+      - name: Install
+        run: brew install --build-from-source --formula ./Formula/toac.rb
+
+      - name: Test
+        run: brew test --formula ./Formula/toac.rb

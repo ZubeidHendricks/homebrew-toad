@@ -1,0 +1,54 @@
+name: bump
+
+# Checks npm daily for a new toad-compiler release and updates the formula.
+# Verifies (brew install + brew test) before pushing. Force a run any time via
+# Actions -> bump -> Run workflow.
+
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check npm for a new version
+        id: check
+        run: |
+          latest="$(npm view toad-compiler version)"
+          current="$(sed -n 's|.*toad-compiler-\(.*\)\.tgz.*|\1|p' Formula/toac.rb)"
+          echo "latest=$latest"   >> "$GITHUB_OUTPUT"
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "npm: $latest, formula: $current"
+
+      - name: Update formula
+        if: steps.check.outputs.latest != steps.check.outputs.current
+        run: |
+          v="${{ steps.check.outputs.latest }}"
+          curl -fsSL "https://registry.npmjs.org/toad-compiler/-/toad-compiler-${v}.tgz" -o /tmp/toad-compiler.tgz
+          sha="$(shasum -a 256 /tmp/toad-compiler.tgz | cut -d' ' -f1)"
+          sed -i '' \
+            -e "s|toad-compiler-[0-9A-Za-z.-]*\.tgz|toad-compiler-${v}.tgz|" \
+            -e "s|sha256 \".*\"|sha256 \"${sha}\"|" \
+            Formula/toac.rb
+          git diff
+
+      - name: Verify
+        if: steps.check.outputs.latest != steps.check.outputs.current
+        run: |
+          brew install --build-from-source --formula ./Formula/toac.rb
+          brew test --formula ./Formula/toac.rb
+
+      - name: Commit and push
+        if: steps.check.outputs.latest != steps.check.outputs.current
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "toac ${{ steps.check.outputs.latest }}"
+          git push
