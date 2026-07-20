@@ -1,8 +1,8 @@
 class Toac < Formula
   desc "Compiler and language tooling for TOAD .agent files"
   homepage "https://zubeidhendricks.github.io/toad/"
-  url "https://registry.npmjs.org/toad-compiler/-/toad-compiler-0.7.1.tgz"
-  sha256 "646525a09337d28ebcd870ce1106a958d8688aff075b6a1313b7abcfd1775bcc"
+  url "https://registry.npmjs.org/toad-compiler/-/toad-compiler-0.7.2.tgz"
+  sha256 "b199fe2d84ac8780797b9a1cd99d74a5d76e40e2928667d09158a88eabca15b5"
   license "MIT"
 
   depends_on "node"
